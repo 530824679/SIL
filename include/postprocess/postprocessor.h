@@ -34,9 +34,7 @@ namespace perception {
 
         std::vector<BoxInfo> postprocessing2D(const cv::Size& resizedImageShape, const cv::Size& originalImageShape, std::vector<Ort::Value>& outputTensors, const float& confThreshold, const float& iouThreshold);
 
-        void postprocessing3D(const float *hm, const float *wh, const float *ang, const float *reg,
-                         vector<Detection> &result, const int w, const int h, const int classes,
-                         const int kernel_size,const float visthresh);
+        std::vector<KeypointsInfo> postprocessing3D(const cv::Size& resizedImageShape, const cv::Size& originalImageShape, std::vector<Ort::Value>& outputTensors);
 
         void getBestClassInfo(std::vector<float>::iterator it, const int& numClasses, float& bestConf, int& bestClassId);
 
@@ -45,6 +43,8 @@ namespace perception {
         float get_iou_value(cv::Rect rect1, cv::Rect rect2);
 
         void nmsBoxes(std::vector<cv::Rect>& boxes, std::vector<float>& confs, const float& confThreshold, const float& iouThreshold, std::vector<int>& indices);
+
+        void getMaxPreds(float* heatmap, std::vector<int64_t>& t, float* preds, float* maxvals);
     };
 }
 

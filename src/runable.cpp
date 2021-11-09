@@ -20,6 +20,7 @@ as well as in the event of applications for industrial property rights.
 #include "types.h"
 #include "cmdline.h"
 #include "detector.h"
+#include "recogniser.h"
 #include "preprocessor.h"
 #include "visualization.h"
 
@@ -61,6 +62,7 @@ int main(int argc, char* argv[])
     cmd.add<std::string>("kps_model_path", 'k', "Path to onnx model.", false, "kps.onnx");
     cmd.add<std::string>("image_path", 'i', "Image source to be detected.", false, "bus.jpg");
     cmd.add<std::string>("class_names", 'c', "Path to class names file.", false, "coco.names");
+    cmd.add<std::string>("visualize", 'v', "Visual Type.", false, "2D");
     cmd.add("gpu", '\0', "Inference on cuda device.");
 
     cmd.parse_check(argc, argv);
@@ -70,6 +72,7 @@ int main(int argc, char* argv[])
     const std::vector<std::string> classNames = loadNames(classNamesPath);
     const std::string imagePath = "/home/chenwei/HDD/Project/SIL/test/bus.jpg";//cmd.get<std::string>("image_path");
     const std::string modelPath = "/home/chenwei/HDD/Project/SIL/model/yolov5m.onnx";//cmd.get<std::string>("model_path");
+    const std::string visualType = "2D";
 
     if (classNames.empty())
     {
@@ -77,8 +80,8 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    // Object Detection Step
     cv::Mat image;
-    Visualizer visualizer;
     std::vector<BoxInfo> result;
 
     try
@@ -96,13 +99,46 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    // 图像可视化
-    visualizer.visualize2D(image, result, classNames);
 
+    vector<int> input_size(256, 128);
+    std::vector<KeypointsInfo> KPS;
+
+    for (int i = 0; i < result.size();i++)
+    {
+        try
+        {
+            Recogniser recogniser(modelPath, is_gpu, cv::Size(640, 640), input_size);
+            std::cout << "Model was initialized." << std::endl;
+
+            // 加载推理图片
+            KPS = recogniser.recognise(image, result[i], confThreshold, iouThreshold);
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << std::endl;
+            return -1;
+        }
+    }
+
+    // 图像可视化
+    Visualizer visualizer;
     static const string winName = "SIL Perception";
     namedWindow(winName, WINDOW_NORMAL);
-    cv::imshow(winName, image);
-    cv::waitKey(0);
+
+    if(visualType == "2D")
+    {
+        visualizer.visualize2D(image, result, classNames);
+        cv::imshow(winName, image);
+        cv::waitKey(0);
+    } else if(visualType == "3D")
+    {
+        visualizer.visualize3D(image, KPS);
+        cv::imshow(winName, image);
+        cv::waitKey(0);
+    }else{
+        //////
+    }
+
     destroyAllWindows();
 
     return 0;

@@ -7,6 +7,11 @@ namespace perception
         preProcessor_  = std::make_shared<PreProcess>();
         postProcessor_  = std::make_shared<PostProcess>();
 
+        loadONNX(model_path, is_gpu, input_size);
+    }
+
+    Ort::Session Detector::loadONNX(const std::string model_path, const bool is_gpu, const cv::Size input_size)
+    {
         // 加载设备
         std::vector<std::string> availableProviders = Ort::GetAvailableProviders();
         auto cudaAvailable = std::find(availableProviders.begin(), availableProviders.end(), "CUDAExecutionProvider");
@@ -32,13 +37,11 @@ namespace perception
         env = Ort::Env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, "SIL_ODET");
         session = Ort::Session(env, model_path.c_str(), sessionOptions);
 
-        Ort::AllocatorWithDefaultOptions allocator;
-
+        // 检查图像宽高是否动态设置
         Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
         std::vector<int64_t> inputTensorShape = inputTypeInfo.GetTensorTypeAndShapeInfo().GetShape();
         preProcessor_->isDynamicInputShape = false;
 
-        // 检查图像宽高是否动态设置
         if (inputTensorShape[2] == -1 && inputTensorShape[3] == -1)
         {
             std::cout << "Dynamic input shape" << std::endl;
@@ -49,6 +52,7 @@ namespace perception
             std::cout << "Input shape: " << shape << std::endl;
 
         // 定义输入输出层
+        Ort::AllocatorWithDefaultOptions allocator;
         inputNames.push_back(session.GetInputName(0, allocator));
         outputNames.push_back(session.GetOutputName(0, allocator));
 
@@ -65,22 +69,18 @@ namespace perception
         std::vector<int64_t> inputTensorShape {1, 3, -1, -1};
 
         // 预处理输入图片
-        preProcessor_->preprocessing(image, blob, inputTensorShape);
+        preProcessor_->preprocessing2D(image, blob, inputTensorShape);
 
         size_t inputTensorSize = preProcessor_->vectorProduct(inputTensorShape);
         std::cout << "inputTensorSize: " << inputTensorSize << std::endl;
         std::vector<float> inputTensorValues(blob, blob + inputTensorSize);
 
+        // 从数据中创建输入张量
         std::vector<Ort::Value> inputTensors;
-
         Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
+        inputTensors.push_back(Ort::Value::CreateTensor<float>(memoryInfo, inputTensorValues.data(), inputTensorSize, inputTensorShape.data(), inputTensorShape.size()));
 
-        inputTensors.push_back(Ort::Value::CreateTensor<float>(
-                memoryInfo, inputTensorValues.data(), inputTensorSize,
-                inputTensorShape.data(), inputTensorShape.size()
-        ));
-
-        // 模型推理
+        // 模型推理得到输出张量
         std::vector<Ort::Value> outputTensors = this->session.Run(Ort::RunOptions{nullptr},
                                                                   inputNames.data(),
                                                                   inputTensors.data(),
@@ -90,7 +90,7 @@ namespace perception
 
         // 后处理提取出目标坐标、长宽
         cv::Size resizedShape = cv::Size((int)inputTensorShape[3], (int)inputTensorShape[2]);
-        std::vector<BoxInfo> result = postProcessor_->postprocessing(resizedShape, image.size(), outputTensors, confThreshold, iouThreshold);
+        std::vector<BoxInfo> result = postProcessor_->postprocessing2D(resizedShape, image.size(), outputTensors, confThreshold, iouThreshold);
 
         delete[] blob;
 

@@ -19,6 +19,7 @@ as well as in the event of applications for industrial property rights.
 #ifndef SIL_PREPROCESSOR_H
 #define SIL_PREPROCESSOR_H
 
+#include "types.h"
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
@@ -41,7 +42,7 @@ namespace perception {
 
         void preprocessing2D(cv::Mat &image, float*& blob, std::vector<int64_t>& inputTensorShape);
 
-        void preProcessing3D(cv::Mat &image, float* output, std::vector<int> inputTensorShape);
+        void preprocessing3D(cv::Mat &image, BoxInfo box, float* output, std::vector<int> inputTensorShape);
 
     public:
         bool isDynamicInputShape{};

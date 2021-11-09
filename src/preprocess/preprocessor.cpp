@@ -36,8 +36,11 @@ namespace perception
         cv::split(floatImage, chw);
     }
 
-    void PreProcess::preProcessing3D(cv::Mat &image, float* output, std::vector<int> inputTensorShape)
+    void PreProcess::preprocessing3D(cv::Mat &image, BoxInfo box, float* output, std::vector<int> inputTensorShape)
     {
+        // 抠图box
+
+
         int input_w = inputTensorShape[0];
         int input_h = inputTensorShape[1];
         float scale = cv::min(float(input_w) / image.cols, float(input_h) / image.rows);

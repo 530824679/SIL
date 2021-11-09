@@ -34,5 +34,14 @@ namespace perception
         float score{};
         int classId{};
     } BoxInfo;
+
+    typedef struct KeypointsInfo
+    {
+        cv::Point2d pt1;
+        cv::Point2d pt2;
+        cv::Point2d pt3;
+        cv::Point2d pt4;
+    } KeypointsInfo;
+
 }
 #endif //SIL_TYPES_H

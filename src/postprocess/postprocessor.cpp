@@ -66,6 +66,11 @@ namespace perception
         return detections;
     }
 
+    std::vector<KeypointsInfo> PostProcess::postprocessing3D(const cv::Size& resizedImageShape, const cv::Size& originalImageShape, std::vector<Ort::Value>& outputTensors)
+    {
+
+    }
+
     bool comp(BoxInfo box1,BoxInfo box2)
     {
         return (box1.score > box2.score);
@@ -121,6 +126,46 @@ namespace perception
         }
 
     }
+
+    void PostProcess::getMaxPreds(float* heatmap, std::vector<int64_t>& t, float* preds, float* maxvals)
+    {
+        int batch_size = t[0];
+        int num_joints = t[1];
+        int width = t[3];
+        float* pred_mask = new float[num_joints * 2];
+        int* idx = new int[num_joints * 2];
+        for (int i = 0; i < batch_size; ++i) {
+            for (int j = 0; j < num_joints; ++j) {
+                float max = heatmap[i * num_joints * t[2] * t[3] + j * t[2] * t[3]];
+                int max_id = 0;
+                for (int k = 1; k < t[2] * t[3]; ++k) {
+                    int index = i * num_joints * t[2] * t[3] + j * t[2] * t[3] + k;
+                    if (heatmap[index] > max) {
+                        max = heatmap[index];
+                        max_id = k;
+                    }
+                }
+                maxvals[j] = max;
+                idx[j] = max_id;
+                idx[j + num_joints] = max_id;
+            }
+        }
+        for (int i = 0; i < num_joints; ++i) {
+            idx[i] = idx[i] % width;
+            idx[i + num_joints] = idx[i + num_joints] / width;
+            if (maxvals[i] > 0) {
+                pred_mask[i] = 1.0;
+                pred_mask[i + num_joints] = 1.0;
+            }
+            else {
+                pred_mask[i] = 0.0;
+                pred_mask[i + num_joints] = 0.0;
+            }
+            preds[i] = idx[i] * pred_mask[i];
+            preds[i + num_joints] = idx[i + num_joints] * pred_mask[i + num_joints];
+        }
+    }
+
 
     void PostProcess::scaleCoords(const cv::Size& imageShape, cv::Rect& coords, const cv::Size& imageOriginalShape)
     {

@@ -35,12 +35,15 @@ namespace perception {
     class Recogniser {
     public:
         Recogniser() = default;
-        Recogniser(const std::string& model_path, const bool& is_gpu, const cv::Size& input_size);
+        Recogniser(const std::string& model_path, const bool& is_gpu, const cv::Size& image_size, std::vector<int>& input_size);
         ~Recogniser(){};
 
-        std::vector<KeypointsInfo> recognise(cv::Mat& image, const float& confThreshold, const float& iouThreshold);
+        Ort::Session loadONNX(const std::string model_path, const bool is_gpu, const cv::Size image_size);
+        std::vector<KeypointsInfo> recognise(cv::Mat& image, BoxInfo box, const float& confThreshold, const float& iouThreshold);
 
     private:
+        std::vector<int> inputShape;
+
         Ort::Env env{nullptr};
         Ort::SessionOptions sessionOptions{nullptr};
         Ort::Session session{nullptr};
