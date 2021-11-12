@@ -1,0 +1,3 @@
+/home/qzx/code/SIL/build/CMakeFiles/rebuild_cache.dir
+/home/qzx/code/SIL/build/CMakeFiles/edit_cache.dir
+/home/qzx/code/SIL/build/CMakeFiles/SIL.dir
