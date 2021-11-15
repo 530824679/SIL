@@ -18,7 +18,7 @@ include_directories(
         ./include/onnxruntime/cpu
 )
 
-link_directories("/home/qzx/code/SIL/lib")
+link_directories("/home/chenwei/HDD/Project/SIL/lib/cpu")
 
 add_executable(SIL src/runable.cpp
         src/detect/detector.cpp

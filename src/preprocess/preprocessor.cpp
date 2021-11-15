@@ -43,10 +43,10 @@ namespace perception
                 CV_CAP_PROP_FRAME_WIDTH – 视频流的宽度
                 CV_CAP_PROP_FRAME_HEIGHT – 视频流的高度
                 CV_CAP_PROP_FPS – 帧速率（帧 / 秒）*/
-            int frame_width = (int)capture.get(CV_CAP_PROP_FRAME_WIDTH);
-            int frame_height = (int)capture.get(CV_CAP_PROP_FRAME_HEIGHT);
-            float frame_fps = capture.get(CV_CAP_PROP_FPS);
-            int frame_number = capture.get(CV_CAP_PROP_FRAME_COUNT);//总帧数
+            int frame_width = (int)capture.get(CAP_PROP_FRAME_WIDTH);
+            int frame_height = (int)capture.get(CAP_PROP_FRAME_HEIGHT);
+            float frame_fps = capture.get(CAP_PROP_FPS);
+            int frame_number = capture.get(CAP_PROP_FRAME_COUNT);//总帧数
             std::cout << "frame_width is " << frame_width<< std::endl;
             std::cout << "frame_height is " << frame_height << std::endl;
             std::cout << "frame_fps is " << frame_fps << std::endl;
