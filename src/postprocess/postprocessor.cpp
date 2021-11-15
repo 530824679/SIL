@@ -1,5 +1,7 @@
 #include "postprocessor.h"
-
+#include "visualization.h"
+using namespace perception;
+Visualizer visualizer;
 namespace perception
 {
     std::vector<BoxInfo> PostProcess::postprocessing2D(const cv::Size& resizedImageShape, const cv::Size& originalImageShape, std::vector<Ort::Value>& outputTensors, const float& confThreshold, const float& iouThreshold)
@@ -66,8 +68,81 @@ namespace perception
         return detections;
     }
 
-    std::vector<KeypointsInfo> PostProcess::postprocessing3D(const cv::Size& resizedImageShape, const cv::Size& originalImageShape, std::vector<Ort::Value>& outputTensors)
+    void PostProcess::getMaxPreds(const float* heatmap, std::vector<int64_t>& t, float* preds, float* maxvals)
     {
+        int batch_size = t[0];
+        int num_joints = t[1];
+        int width = t[2];
+
+
+        float* pred_mask = new float[num_joints * 2];
+        int* idx = new int[num_joints * 2];
+        for (int i = 0; i < batch_size; ++i) {
+            for (int j = 0; j < num_joints; ++j) {
+                float max = heatmap[i * num_joints * t[2] * t[3] + j * t[2] * t[3]];
+                // std::cout << max<< std::endl;
+                int max_id = 0;
+                for (int k = 1; k < t[2] * t[3]; ++k) {
+                    int index = i * num_joints * t[2] * t[3] + j * t[2] * t[3] + k;
+                    if (heatmap[index] > max) {
+                        max = heatmap[index];
+                        max_id = k;
+                    }
+                }
+                maxvals[j] = max;
+                idx[j] = max_id;
+                idx[j + num_joints] = max_id;
+            }
+        }
+        for (int i = 0; i < num_joints; ++i) {
+            idx[i] = idx[i] % width;
+            idx[i + num_joints] = idx[i + num_joints] / width;
+            if (maxvals[i] > 0) {
+                pred_mask[i] = 1.0;
+                pred_mask[i + num_joints] = 1.0;
+            }
+            else {
+                pred_mask[i] = 0.0;
+                pred_mask[i + num_joints] = 0.0;
+            }
+            preds[i] = idx[i] * pred_mask[i];
+            preds[i + num_joints] = idx[i + num_joints] * pred_mask[i + num_joints];
+            
+
+        }
+
+
+
+    }
+    int PostProcess::sign(float x) {
+	int w = 0;
+	if (x > 0) {
+		w = 1;
+	}
+	else if (x == 0) {
+		w = 0;
+	}
+	else {
+		w = -1;
+	}
+	return w;
+    }
+    std::vector<KeypointsInfo> PostProcess::postprocessing3D(const cv::Size& resizedImageShape, const cv::Size& originalImageShape, std::vector<Ort::Value>& outputTensors,std::vector<int64_t>& t)
+    {   
+        // std::cout << "Total Dim:" << t.size() << std::endl;
+        
+        // for(int i=0; i < t.size(); i++)
+        // {   
+        //     std::cout << "Dim:" << t[i] << std::endl;
+        // }
+
+        float* preds = new float[t[1] * 2];
+	    float* maxvals = new float[t[1]];
+        std::cout << "$$$$$$$$$$$$$$$$$$$" << std::endl;
+        auto* rawOutput = outputTensors[0].GetTensorData<float>();
+        size_t count = outputTensors[0].GetTensorTypeAndShapeInfo().GetElementCount();
+        std::cout << count << std::endl;
+        getMaxPreds(rawOutput, t, preds, maxvals);
 
     }
 
@@ -125,45 +200,6 @@ namespace perception
             }
         }
 
-    }
-
-    void PostProcess::getMaxPreds(float* heatmap, std::vector<int64_t>& t, float* preds, float* maxvals)
-    {
-        int batch_size = t[0];
-        int num_joints = t[1];
-        int width = t[3];
-        float* pred_mask = new float[num_joints * 2];
-        int* idx = new int[num_joints * 2];
-        for (int i = 0; i < batch_size; ++i) {
-            for (int j = 0; j < num_joints; ++j) {
-                float max = heatmap[i * num_joints * t[2] * t[3] + j * t[2] * t[3]];
-                int max_id = 0;
-                for (int k = 1; k < t[2] * t[3]; ++k) {
-                    int index = i * num_joints * t[2] * t[3] + j * t[2] * t[3] + k;
-                    if (heatmap[index] > max) {
-                        max = heatmap[index];
-                        max_id = k;
-                    }
-                }
-                maxvals[j] = max;
-                idx[j] = max_id;
-                idx[j + num_joints] = max_id;
-            }
-        }
-        for (int i = 0; i < num_joints; ++i) {
-            idx[i] = idx[i] % width;
-            idx[i + num_joints] = idx[i + num_joints] / width;
-            if (maxvals[i] > 0) {
-                pred_mask[i] = 1.0;
-                pred_mask[i + num_joints] = 1.0;
-            }
-            else {
-                pred_mask[i] = 0.0;
-                pred_mask[i + num_joints] = 0.0;
-            }
-            preds[i] = idx[i] * pred_mask[i];
-            preds[i + num_joints] = idx[i + num_joints] * pred_mask[i + num_joints];
-        }
     }
 
 

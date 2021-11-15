@@ -18,7 +18,7 @@ include_directories(
         ./include/onnxruntime/cpu
 )
 
-link_directories(lib/cpu)
+link_directories("/home/qzx/code/SIL/lib")
 
 add_executable(SIL src/runable.cpp
         src/detect/detector.cpp
@@ -27,4 +27,4 @@ add_executable(SIL src/runable.cpp
         src/preprocess/preprocessor.cpp
         src/visualize/visualization.cpp)
 
-target_link_libraries(SIL ${OpenCV_LIBS} libonnxruntime.so)
+target_link_libraries(SIL ${OpenCV_LIBS} onnxruntime)

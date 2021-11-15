@@ -6,11 +6,11 @@ namespace perception
     {
         preProcessor_  = std::make_shared<PreProcess>();
         postProcessor_  = std::make_shared<PostProcess>();
-
         loadONNX(model_path, is_gpu, input_size);
+        
     }
 
-    Ort::Session Detector::loadONNX(const std::string model_path, const bool is_gpu, const cv::Size input_size)
+    void Detector::loadONNX(const std::string model_path, const bool is_gpu, const cv::Size input_size)
     {
         // 加载设备
         std::vector<std::string> availableProviders = Ort::GetAvailableProviders();
@@ -53,12 +53,11 @@ namespace perception
 
         // 定义输入输出层
         Ort::AllocatorWithDefaultOptions allocator;
+
         inputNames.push_back(session.GetInputName(0, allocator));
         outputNames.push_back(session.GetOutputName(0, allocator));
-
         std::cout << "Input name: " << inputNames[0] << std::endl;
         std::cout << "Output name: " << outputNames[0] << std::endl;
-
         preProcessor_->inputImageShape = cv::Size2f(input_size);
     }
 

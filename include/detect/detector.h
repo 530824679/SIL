@@ -39,7 +39,7 @@ namespace perception
         Detector(const std::string& model_path, const bool& is_gpu, const cv::Size& input_size);
         ~Detector(){};
 
-        Ort::Session loadONNX(const std::string model_path, const bool is_gpu, const cv::Size input_size);
+        void loadONNX(const std::string model_path, const bool is_gpu, const cv::Size input_size);
         std::vector<BoxInfo> detect(cv::Mat& image, const float& confThreshold, const float& iouThreshold);
 
     private:

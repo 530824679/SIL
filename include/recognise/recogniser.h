@@ -21,6 +21,7 @@ as well as in the event of applications for industrial property rights.
 
 #include <iostream>
 #include <fstream>
+#include <map>
 #include <string>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
@@ -38,7 +39,7 @@ namespace perception {
         Recogniser(const std::string& model_path, const bool& is_gpu, const cv::Size& image_size, std::vector<int>& input_size);
         ~Recogniser(){};
 
-        Ort::Session loadONNX(const std::string model_path, const bool is_gpu, const cv::Size image_size);
+        void loadONNX(const std::string model_path, const bool is_gpu, const cv::Size image_size);
         std::vector<KeypointsInfo> recognise(cv::Mat& image, BoxInfo box, const float& confThreshold, const float& iouThreshold);
 
     private:
@@ -51,8 +52,13 @@ namespace perception {
         std::vector<const char*> inputNames;
         std::vector<const char*> outputNames;
 
+        std::vector<int64_t> input_node_dims;
+        std::vector<int64_t> output_node_dims;
+
         std::shared_ptr<PreProcess> preProcessor_;
         std::shared_ptr<PostProcess> postProcessor_;
+
+        std::map<const char*, std::vector<int64_t>> output_dim_;
     };
 }
 

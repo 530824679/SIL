@@ -34,3 +34,7 @@
 .idea/
 cmake-build-debug/
 lib/
+build/
+.vscode/
+model/
+test/
