@@ -44,7 +44,6 @@ namespace perception {
 
         void preprocessing3D(cv::Mat &image, BoxInfo box, float* output, std::vector<int> inputTensorShape);
 
-        cv::Mat data_input(const std::string& filename);
 
     public:
         bool isDynamicInputShape{};

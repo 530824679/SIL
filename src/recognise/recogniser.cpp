@@ -116,9 +116,10 @@ namespace perception
 
         // 为加载的图片准备一个输入的tensor
         float *blob = new float[1047456];
-        std::vector<int64_t> inputTensorShape {1, 3, 256, 192};
+        std::vector<int64_t> inputTensorShape {1, 3, 192, 256};
 
         // 预处理输入图片
+        
         preProcessor_->preprocessing3D(image, box, blob, inputShape);
         
         size_t inputTensorSize = preProcessor_->vectorProduct(inputTensorShape);
@@ -135,17 +136,18 @@ namespace perception
         ));
 
         // 模型推理
-
+        std::cout << "######## LShape模型推理 ########"<< std::endl;
         std::vector<Ort::Value> outputTensors = this->session.Run(Ort::RunOptions{nullptr},
                                                                   inputNames.data(),
                                                                   inputTensors.data(),
                                                                   1,
                                                                   outputNames.data(),
                                                                   1);
-        // 后处理提取出目标坐标、长宽
-        cv::Size resizedShape = cv::Size((int)inputTensorShape[2], (int)inputTensorShape[3]);
-        std::vector<KeypointsInfo> result = postProcessor_->postprocessing3D(resizedShape, image.size(), outputTensors, output_dim_[outputNames[0]]);
 
+        std::cout << "######## LShape后处理 ########"<< std::endl;        
+        // 后处理提取出目标坐标、长宽
+        cv::Size resizedShape = cv::Size((int)inputTensorShape[3], (int)inputTensorShape[2]);
+        std::vector<KeypointsInfo> result = postProcessor_->postprocessing3D(resizedShape, image.size(), outputTensors, output_dim_[outputNames[0]],box);
         delete[] blob;
 
         return result;

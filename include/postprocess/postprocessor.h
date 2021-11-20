@@ -34,7 +34,7 @@ namespace perception {
 
         std::vector<BoxInfo> postprocessing2D(const cv::Size& resizedImageShape, const cv::Size& originalImageShape, std::vector<Ort::Value>& outputTensors, const float& confThreshold, const float& iouThreshold);
 
-        std::vector<KeypointsInfo> postprocessing3D(const cv::Size& resizedImageShape, const cv::Size& originalImageShape, std::vector<Ort::Value>& outputTensors,std::vector<int64_t>& t);
+        std::vector<KeypointsInfo> postprocessing3D(const cv::Size& resizedImageShape, const cv::Size& originalImageShape, std::vector<Ort::Value>& outputTensors,std::vector<int64_t>& t,BoxInfo box);
 
         void getBestClassInfo(std::vector<float>::iterator it, const int& numClasses, float& bestConf, int& bestClassId);
 
@@ -44,9 +44,8 @@ namespace perception {
 
         void nmsBoxes(std::vector<cv::Rect>& boxes, std::vector<float>& confs, const float& confThreshold, const float& iouThreshold, std::vector<int>& indices);
 
-        void getMaxPreds(const float* heatmap, std::vector<int64_t>& t, float* preds, float* maxvals);
+        void getMaxPreds(const float* heatmap, std::vector<int64_t>& dim, std::vector<float> preds, std::vector<float> maxvals, std::vector<KeypointsInfo> &KPS,BoxInfo box);
 
-        int sign(float x);
     };
 }
 

@@ -30,25 +30,44 @@ namespace perception
         {
 
             std::cout << "123456"<< std::endl;
-            int pt5_x = keypoint.pt2.x;
-            int pt5_y = keypoint.pt1.y;
-            int pt6_x = keypoint.pt1.x;
-            int pt6_y = keypoint.pt2.y;
-            std::cout << keypoint.pt1.x<< std::endl;
-            std::cout << keypoint.pt1.y<< std::endl;
-            std::cout << keypoint.pt2.x<< std::endl;
-            std::cout << keypoint.pt2.y<< std::endl;
-            std::cout << keypoint.pt3.x<< std::endl;
-            std::cout << keypoint.pt3.y<< std::endl;
-            std::cout << keypoint.pt4.x<< std::endl;
-            std::cout << keypoint.pt4.y<< std::endl;
-            cv::line(image,cv::Point(keypoint.pt1.x,keypoint.pt1.y),cv::Point(pt5_x,pt5_y),cv::Scalar(0, 255, 0),1);
-            cv::line(image,cv::Point(keypoint.pt1.x,keypoint.pt1.y),cv::Point(pt6_x,pt6_y),cv::Scalar(0, 255, 0),1);
-            cv::line(image,cv::Point(keypoint.pt2.x,keypoint.pt2.y),cv::Point(pt5_x,pt5_y),cv::Scalar(0, 255, 0),1);
+            // std::cout << "Total Dim:" << t.size() << std::endl;
+        
+            int pt5_x = keypoint.pt4.x;
+            int pt5_y = keypoint.pt3.y;
+            int pt6_x = keypoint.pt3.x;
+            int pt6_y = keypoint.pt4.y;
+            // std::cout << keypoint.pt1.x<< std::endl;
+            // std::cout << keypoint.pt1.y<< std::endl;
+            // std::cout << keypoint.pt2.x<< std::endl;
+            // std::cout << keypoint.pt2.y<< std::endl;
+            // std::cout << keypoint.pt3.x<< std::endl;
+            // std::cout << keypoint.pt3.y<< std::endl;
+            // std::cout << keypoint.pt4.x<< std::endl;
+            // std::cout << keypoint.pt4.y<< std::endl;
+            // std::cout << pt5_x<< std::endl;
+            // std::cout << pt5_y<< std::endl;
+            // std::cout << pt6_x<< std::endl;
+            // std::cout << pt6_y<< std::endl;
+            if(keypoint.pt1.x < keypoint.pt3.x)
+            {
+            cv::line(image,cv::Point(keypoint.pt1.x,keypoint.pt1.y),cv::Point(keypoint.pt3.x,keypoint.pt3.y),cv::Scalar(0, 255, 0),1);
+            cv::line(image,cv::Point(keypoint.pt1.x,keypoint.pt1.y),cv::Point(keypoint.pt2.x,keypoint.pt2.y),cv::Scalar(0, 255, 0),1);
             cv::line(image,cv::Point(keypoint.pt2.x,keypoint.pt2.y),cv::Point(pt6_x,pt6_y),cv::Scalar(0, 255, 0),1);
-            cv::line(image,cv::Point(keypoint.pt4.x,keypoint.pt4.y),cv::Point(pt5_x,pt5_y),cv::Scalar(0, 255, 0),1);
-            cv::line(image,cv::Point(keypoint.pt3.x,keypoint.pt3.y),cv::Point(keypoint.pt4.x,keypoint.pt4.y),cv::Scalar(0, 255, 0),1);   
-            cv::line(image,cv::Point(keypoint.pt3.x,keypoint.pt3.y),cv::Point(keypoint.pt3.x,keypoint.pt2.y),cv::Scalar(0, 255, 0),1);                      
+            cv::line(image,cv::Point(keypoint.pt3.x,keypoint.pt3.y),cv::Point(pt6_x,pt6_y),cv::Scalar(0, 255, 0),1);
+            cv::line(image,cv::Point(keypoint.pt3.x,keypoint.pt3.y),cv::Point(pt5_x,pt5_y),cv::Scalar(0, 255, 0),1);
+            cv::line(image,cv::Point(keypoint.pt4.x,keypoint.pt4.y),cv::Point(pt5_x,pt5_y),cv::Scalar(0, 255, 0),1);   
+            cv::line(image,cv::Point(keypoint.pt4.x,keypoint.pt4.y),cv::Point(pt6_x,pt6_y),cv::Scalar(0, 255, 0),1);     
+            }
+            else
+            {
+            cv::line(image,cv::Point(keypoint.pt1.x,keypoint.pt1.y),cv::Point(pt5_x,pt5_y),cv::Scalar(0, 255, 0),1);
+            cv::line(image,cv::Point(keypoint.pt1.x,keypoint.pt1.y),cv::Point(keypoint.pt2.x,keypoint.pt2.y),cv::Scalar(0, 255, 0),1);
+            cv::line(image,cv::Point(keypoint.pt2.x,keypoint.pt2.y),cv::Point(keypoint.pt4.x,keypoint.pt4.y),cv::Scalar(0, 255, 0),1);
+            cv::line(image,cv::Point(keypoint.pt3.x,keypoint.pt3.y),cv::Point(pt6_x,pt6_y),cv::Scalar(0, 255, 0),1);
+            cv::line(image,cv::Point(keypoint.pt3.x,keypoint.pt3.y),cv::Point(pt5_x,pt5_y),cv::Scalar(0, 255, 0),1);
+            cv::line(image,cv::Point(keypoint.pt4.x,keypoint.pt4.y),cv::Point(pt5_x,pt5_y),cv::Scalar(0, 255, 0),1);   
+            cv::line(image,cv::Point(keypoint.pt4.x,keypoint.pt4.y),cv::Point(pt6_x,pt6_y),cv::Scalar(0, 255, 0),1);     
+            }
         }
 
 
