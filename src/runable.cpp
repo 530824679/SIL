@@ -99,10 +99,10 @@ namespace perception
         result.clear();
 
         cv::Mat frame;
-
-        std::cout << "######## 2D detection test ########"<< std::endl; 
+ 
         try
         {
+            std::cout << "######## 2D detection test ########"<< std::endl;
             // 加载推理图片
             std::cout <<  "input image or video filename" << std::endl;
             const std::string  file_ext = dataPath.substr(dataPath.find_last_of(".") + 1);
@@ -115,7 +115,7 @@ namespace perception
                 result = pdetector->detect(frame, confThreshold, iouThreshold);
                 
                 // visualizer.visualize2D(frame, result, classNames);
-                // cv::imshow("yest", frame);
+                // cv::imshow("2D visualize test", frame);
                 // cv::waitKey(0);
 
                 vector<int> input_size;
@@ -124,6 +124,7 @@ namespace perception
                 
                 std::vector<KeypointsInfo> KPS;
 
+                std::cout << "######## 3D detection test ########"<< std::endl;
                 for (int i = 0; i < result.size();i++)
                 {
                     try
@@ -136,7 +137,7 @@ namespace perception
                         KPS = recogniser.recognise(frame, result[i], confThreshold, iouThreshold);
                         // cv::Mat frame1 = cv::imread("/home/qzx/code/SIL/test/test_front2.png");
                         visualizer.visualize3D(frame, KPS);
-                        cv::imshow("test111", frame);
+                        cv::imshow("3D visualize test", frame);
                         cv::waitKey(0);
                     }
                     
@@ -179,14 +180,14 @@ namespace perception
                     result = (*pdetector).detect(frame, confThreshold, iouThreshold);
                     
                     // visualizer.visualize2D(frame, result, classNames);
-                    // cv::imshow("test", frame);
+                    // cv::imshow("2D visualize test", frame);
                     // cv::waitKey(2);
                     vector<int> input_size;
                     input_size.push_back(256);
                     input_size.push_back(192);
                     
                     std::vector<KeypointsInfo> KPS;
-
+                    std::cout << "######## 3D detection test ########"<< std::endl;
                     for (int i = 0; i < result.size();i++)
                     {
                         try
@@ -197,9 +198,9 @@ namespace perception
                             // 加载推理图片
                             std::cout << "######## 加载推理图片 ########"<< std::endl; 
                             KPS = recogniser.recognise(frame, result[i], confThreshold, iouThreshold);
-                            // cv::Mat frame1 = cv::imread("/home/qzx/code/SIL/test/test_front2.png");
+
                             visualizer.visualize3D(frame, KPS);
-                            cv::imshow("test111", frame);
+                            cv::imshow("3D visualize test", frame);
                             cv::waitKey(2);
                         }
                         

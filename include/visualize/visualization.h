@@ -34,6 +34,7 @@ namespace perception {
         void visualize2D(cv::Mat &image, std::vector<BoxInfo> &detections, const std::vector<std::string> &classNames);
 
         void visualize3D(cv::Mat &image, std::vector<KeypointsInfo> &detections);
+        void visualize_LShape(cv::Mat &image, std::vector<KeypointsInfo> &detections);
 
     };
 }

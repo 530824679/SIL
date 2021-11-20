@@ -93,9 +93,9 @@ namespace perception
             if (*max_dis > 0)
              {
                 preds[j * 2] = static_cast<float>(max_id % width) * 4+2 ;
-                std::cout << "x: " << preds[j * 2] << std::endl;
+                // std::cout << "x: " << preds[j * 2] << std::endl;
                 preds[j * 2 + 1] = static_cast<float>(max_id / width) * 4+2 ;
-                std::cout << "y: " << preds[j * 2 + 1] << std::endl;
+                // std::cout << "y: " << preds[j * 2 + 1] << std::endl;
 
             }
         }
@@ -184,9 +184,8 @@ namespace perception
         std::vector<float> maxvals(t[1], 0);
         auto* rawOutput = outputTensors[0].GetTensorData<float>();
         size_t count = outputTensors[0].GetTensorTypeAndShapeInfo().GetElementCount();
-        std::cout << count << std::endl;
+        // std::cout << count << std::endl;
         getMaxPreds(rawOutput, t, preds, maxvals,KPS1,box);
-        printf("121345");
         return KPS1;
 
 
