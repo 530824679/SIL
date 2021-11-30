@@ -1,0 +1,3 @@
+/home/chenwei/Project/SIL/build/CMakeFiles/rebuild_cache.dir
+/home/chenwei/Project/SIL/build/CMakeFiles/SIL.dir
+/home/chenwei/Project/SIL/build/CMakeFiles/edit_cache.dir

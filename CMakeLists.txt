@@ -3,6 +3,8 @@ project(SIL)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_BUILD_TYPE "Debug")                                                                           # 默认是Release模式，设置为Debug才能调试
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)            # 设置可执行文件的输出目录
 
 
 find_package(OpenCV REQUIRED)
