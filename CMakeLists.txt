@@ -29,6 +29,7 @@ add_executable(SIL
         src/detect/detector.cpp
         src/recognise/recogniser.cpp
         src/postprocess/postprocessor.cpp
+        src/postprocess/decode.cpp
         src/preprocess/preprocessor.cpp
         src/visualize/visualization.cpp)
 
