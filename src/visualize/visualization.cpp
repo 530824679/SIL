@@ -14,6 +14,10 @@ namespace perception
 
             int conf = (int)(box.score * 100);
             int classId = box.classId;
+
+            if(classId > 2)
+                continue;
+
             std::string label = classNames[classId] + " 0." + std::to_string(conf);
 
             int baseline = 0;
@@ -22,6 +26,7 @@ namespace perception
 
             cv::putText(image, label, cv::Point(x, y - 3), cv::FONT_ITALIC, 0.8, cv::Scalar(255, 255, 255), 2);
         }
+
     }
 
     void Visualizer::visualize_LShape(cv::Mat &image, std::vector<KeypointsInfo> &detections)

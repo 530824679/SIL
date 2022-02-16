@@ -29,12 +29,22 @@ namespace perception {
 
     class Decode {
     public:
-        Decode() = default;
-        ~Decode(){};
+        Decode();
+        ~Decode();
 
-        double sigmoid(double x);
+        bool parse_head(const float* output_blob, float cof_threshold, int feature_size);
+
+        float sigmoid(float x);
 
         std::vector<int> get_anchors(int grid_size);
+
+    public:
+        std::vector<cv::Rect> origin_rect_;                     //保存原始的框信息
+        std::vector<float> origin_rect_conf_;               //保存框对应的置信度信息
+        int feature_size_[3];
+
+        double _cof_threshold;                         //置信度阈值,框置信度乘以物品种类置信度
+        double _nms_area_threshold;                    //nms最小重叠面积阈值
     };
 }
 

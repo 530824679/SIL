@@ -6,8 +6,9 @@ namespace perception
     {
         preProcessor_  = std::make_shared<PreProcess>();
         postProcessor_  = std::make_shared<PostProcess>();
+        decode_  = std::make_shared<Decode>();
+
         loadONNX(model_path, is_gpu, input_size);
-        
     }
 
     void Detector::loadONNX(const std::string model_path, const bool is_gpu, const cv::Size input_size)
@@ -56,6 +57,8 @@ namespace perception
 
         inputNames.push_back(session.GetInputName(0, allocator));
         outputNames.push_back(session.GetOutputName(0, allocator));
+        //outputNames.push_back(session.GetOutputName(1, allocator));
+        //outputNames.push_back(session.GetOutputName(2, allocator));
         std::cout << "Input name: " << inputNames[0] << std::endl;
         std::cout << "Output name: " << outputNames[0] << std::endl;
         preProcessor_->inputImageShape = cv::Size2f(input_size);
@@ -89,11 +92,40 @@ namespace perception
 
         // 后处理提取出目标坐标、长宽
         cv::Size resizedShape = cv::Size((int)inputTensorShape[3], (int)inputTensorShape[2]);
-        std::vector<BoxInfo> result = postProcessor_->postprocessing2D(resizedShape, image.size(), outputTensors, confThreshold, iouThreshold);
+        //std::vector<BoxInfo> result = postProcessor_->postprocessing2D(resizedShape, image.size(), outputTensors, confThreshold, iouThreshold);
+
+        int i=0;
+        int s[1] = {20};
+        for(auto &output :outputTensors)
+        {
+            auto* output_blob = output.GetTensorData<float>();
+            bool ret = decode_->parse_head(output_blob, 0.1, s[i]);
+            ++i;
+        }
+
+        std::vector<int> indices;
+        postProcessor_->nmsBoxes(decode_->origin_rect_, decode_->origin_rect_conf_, 0.1, 0.5, indices);
+        std::cout << "amount of NMS indices: " << indices.size() << std::endl;
+
+        std::vector<BoxInfo> detections;
+
+        for (int idx : indices)
+        {
+            BoxInfo det;
+            det.bbox = cv::Rect(decode_->origin_rect_[idx]);
+            postProcessor_->scaleCoords(resizedShape, det.bbox, image.size());
+
+            det.score = decode_->origin_rect_conf_[idx];
+            det.classId = 0;
+            detections.emplace_back(det);
+        }
+
+
+
 
         delete[] blob;
 
-        return result;
+        return detections;
     }
 
 

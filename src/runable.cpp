@@ -33,10 +33,17 @@ namespace perception
 
     odet_sil::~odet_sil()
     {
-        if(this->pdetector != NULL)
+        if(pdetector != NULL)
         {
-            delete this->pdetector;
+            delete pdetector;
         }
+
+        if(precogniser != NULL)
+        {
+            delete precogniser;
+        }
+
+
     }
 
     std::vector<std::string> odet_sil::loadNames(const std::string& path)
@@ -66,87 +73,95 @@ namespace perception
     void odet_sil::init()
     {
         cmdline::parser cmd;
-    cmd.add<std::string>("odet_model_path", 'o', "Path to onnx model.", false, "../model/yolov5m.onnx");
-    cmd.add<std::string>("kps_model_path", 'k', "Path to onnx model.", false, "../model/kps.onnx");
-    cmd.add<std::string>("data_path", 'i', "Data source to be detected.", false, "/home/qzx/code/SIL/test/test.mp4");
-    cmd.add<std::string>("class_names", 'c', "Path to class names file.", false, "../model/coco.names");
-    cmd.add<std::string>("visual_type", 'v', "Visual Type.", false, "2D");
-    cmd.add("cpu", '\0', "Inference on cuda device.");
-
-        // cmd.parse_check(argc, argv);
+        cmd.add<std::string>("odet_model_path", 'o', "Path to onnx model.", false, "../model/odet-bdd-only-feature_map_20.onnx");
+        cmd.add<std::string>("kps_model_path", 'k', "Path to onnx model.", false, "../model/KPS.onnx");
+        cmd.add<std::string>("class_names", 'c', "Path to class names file.", false, "../config/coco.names");
+        cmd.add<std::string>("visual_type", 'v', "Visual Type.", false, "2D");
+        cmd.add("cpu", '\0', "Inference on cuda device.");
 
         is_gpu = cmd.exist("cpu");
         classNamesPath = cmd.get<std::string>("class_names");
-        classNames = loadNames(classNamesPath);
-        //dataPath = cmd.get<std::string>("data_path");
         odetModelPath = cmd.get<std::string>("odet_model_path");
         kpsModelPath = cmd.get<std::string>("kps_model_path");
         visualType = cmd.get<std::string>("visual_type");
 
+        classNames = loadNames(classNamesPath);
         if (classNames.empty())
         {
             assert("Error: Empty class names file.");
         }
 
-        this->pdetector = new Detector(odetModelPath, is_gpu, cv::Size(640, 640));
+        pdetector = new Detector(odetModelPath, is_gpu, cv::Size(640, 640));
+        std::cout << "ODET Model was initialized." << std::endl;
 
-        std::cout << "Model was initialized." << std::endl;
+        vector<int> input_size;
+        input_size.push_back(256);
+        input_size.push_back(192);
+        precogniser = new Recogniser(kpsModelPath, is_gpu, cv::Size(640, 640), input_size);
+        std::cout << "KPS Model was initialized." << std::endl;
 
-    } 
+        //ptracker = new Track(10);
+    }
 
     int odet_sil::process(std::string dataPath)
     {
         result.clear();
 
         cv::Mat frame;
- 
         try
         {
-            std::cout << "######## 2D detection test ########"<< std::endl;
-            // 加载推理图片
+            // 加载数据
             std::cout <<  "input image or video filename" << std::endl;
-            const std::string  file_ext = dataPath.substr(dataPath.find_last_of(".") + 1);
+            const std::string file_ext = dataPath.substr(dataPath.find_last_of(".") + 1);
 
             //如果输入是图像
             if (file_ext == "png" || file_ext == "jpg" || file_ext == "jpeg" || file_ext == "bmp")
             {
                 cv::Mat frame = imread(dataPath);
-                
                 result = pdetector->detect(frame, confThreshold, iouThreshold);
                 
-                // visualizer.visualize2D(frame, result, classNames);
-                // cv::imshow("2D visualize test", frame);
-                // cv::waitKey(0);
+                visualizer.visualize2D(frame, result, classNames);
+                cv::imshow("2D visualize test", frame);
+                cv::waitKey(0);
 
-                vector<int> input_size;
-                input_size.push_back(256);
-                input_size.push_back(192);
-                
-                std::vector<KeypointsInfo> KPS;
 
-                std::cout << "######## 3D detection test ########"<< std::endl;
-                for (int i = 0; i < result.size();i++)
-                {
-                    try
-                    {
-                        Recogniser recogniser(kpsModelPath, is_gpu, cv::Size(640, 640), input_size);
-                        std::cout << "Model was initialized." << std::endl;
 
-                        // 加载推理图片
-                        std::cout << "######## 加载推理图片 ########"<< std::endl; 
-                        KPS = recogniser.recognise(frame, result[i], confThreshold, iouThreshold);
-                        // cv::Mat frame1 = cv::imread("/home/qzx/code/SIL/test/test_front2.png");
-                        visualizer.visualize3D(frame, KPS);
-                        cv::imshow("3D visualize test", frame);
-                        cv::waitKey(0);
-                    }
-                    
-                    catch(const std::exception& e)
-                    {
-                        std::cerr << e.what() << std::endl;
-                        return -1;
-                    }
-                }    
+
+//                vector<TrackingBox> detFrameData;
+//                for (int i = 0; i < boxes.size(); ++i)
+//                {
+//                    TrackingBox cur_box;
+//                    cur_box.box = boxes[i].rect;
+//                    cur_box.id = i;
+//                    cur_box.frame = frame_id;
+//                    detFrameData.push_back(cur_box);
+//                }
+//                ++frame_id;
+//                vector<TrackingBox> tracking_results = tracker.update(detFrameData);
+
+
+
+
+
+
+
+//                kps.clear();
+//                for (int i = 0; i < result.size();i++)
+//                {
+//                    try
+//                    {
+//                        // 加载推理图片
+//                        kps = precogniser->recognise(frame, result[i], confThreshold, iouThreshold);
+//                        //visualizer.visualize3D(frame, kps);
+//                        //cv::imshow("3D visualize test", frame);
+//                        //cv::waitKey(10);
+//                    }
+//                    catch(const std::exception& e)
+//                    {
+//                        std::cerr << e.what() << std::endl;
+//                        return -1;
+//                    }
+//                }
             }
 
 
@@ -159,15 +174,6 @@ namespace perception
                     std::cout << "open video error"<< std::endl;;
                 }
 
-                int frame_width = (int)capture.get(cv::CAP_PROP_FRAME_WIDTH);
-                int frame_height = (int)capture.get(cv::CAP_PROP_FRAME_HEIGHT);
-                float frame_fps = capture.get(cv::CAP_PROP_FPS);
-                int frame_number = capture.get(cv::CAP_PROP_FRAME_COUNT);
-                std::cout << "frame_width is " << frame_width<< std::endl;
-                std::cout << "frame_height is " << frame_height << std::endl;
-                std::cout << "frame_fps is " << frame_fps << std::endl;
-                std::cout << "frame_number is " << frame_number << std::endl;
-
                 while (true)
                 {
                     bool bSuccess = capture.read(frame);
@@ -177,39 +183,40 @@ namespace perception
                         break;
                     }
 
-                    result = (*pdetector).detect(frame, confThreshold, iouThreshold);
-                    
-                    // visualizer.visualize2D(frame, result, classNames);
-                    // cv::imshow("2D visualize test", frame);
-                    // cv::waitKey(2);
-                    vector<int> input_size;
-                    input_size.push_back(256);
-                    input_size.push_back(192);
-                    
-                    std::vector<KeypointsInfo> KPS;
-                    std::cout << "######## 3D detection test ########"<< std::endl;
-                    for (int i = 0; i < result.size();i++)
+                    result.clear();
+                    result = pdetector->detect(frame, confThreshold, iouThreshold);
+
+                    for(std::vector<BoxInfo>::iterator it = result.begin(); it != result.end(); ++it)
                     {
-                        try
+                        BoxInfo info = *(it);
+                        if (info.classId != 2)
                         {
-                            Recogniser recogniser(kpsModelPath, is_gpu, cv::Size(640, 640), input_size);
-                            std::cout << "Model was initialized." << std::endl;
-
-                            // 加载推理图片
-                            std::cout << "######## 加载推理图片 ########"<< std::endl; 
-                            KPS = recogniser.recognise(frame, result[i], confThreshold, iouThreshold);
-
-                            visualizer.visualize3D(frame, KPS);
-                            cv::imshow("3D visualize test", frame);
-                            cv::waitKey(2);
+                            result.erase(it);
+                            it--;
                         }
-                        
-                        catch(const std::exception& e)
-                        {
-                            std::cerr << e.what() << std::endl;
-                            return -1;
-                        }
-                    }    
+                    }
+
+                    visualizer.visualize2D(frame, result, classNames);
+                    cv::imshow("2D visualize test", frame);
+                    cv::waitKey(10);
+
+//                    for (int i = 0; i < result.size();i++)
+//                    {
+//                        try
+//                        {
+//                            // 加载推理图片
+//                            kps = precogniser->recognise(frame, result[i], confThreshold, iouThreshold);
+//
+////                            visualizer.visualize3D(frame, KPS);
+////                            cv::imshow("3D visualize test", frame);
+////                            cv::waitKey(2);
+//                        }
+//                        catch(const std::exception& e)
+//                        {
+//                            std::cerr << e.what() << std::endl;
+//                            return -1;
+//                        }
+//                    }
                 }
             
             }
@@ -217,15 +224,12 @@ namespace perception
             {
                 assert("Input file format is error.");
             }
-        
         }
         catch(const std::exception& e)
         {
             std::cerr << e.what() << std::endl;
             return -1;
         }
-
-
         destroyAllWindows();
 
         return 0;

@@ -19,7 +19,6 @@ namespace perception
         return product;
     }
 
-
     void PreProcess::preprocessing2D(cv::Mat &image, float*& blob, std::vector<int64_t>& inputTensorShape)
     {
         cv::Mat resizedImage, floatImage;
@@ -63,8 +62,10 @@ namespace perception
 
         // cv::Mat cropped = cv::imread("/home/qzx/code/SIL/test/test-python.png");
 
-        constexpr static float mean[] = {0.485, 0.456, 0.406};
-        constexpr static float std[] = {0.229, 0.224, 0.225};
+        //constexpr static float mean[] = {0.485, 0.456, 0.406};
+        //constexpr static float std[] = {0.229, 0.224, 0.225};
+        constexpr static float mean[] = {0, 0, 0};
+        constexpr static float std[] = {0.003921568627,0.003921568627,0.003921568627};
 
         int row = inputTensorShape[1];
         int col = inputTensorShape[0];
@@ -76,13 +77,10 @@ namespace perception
                 for (int j = 0; j < col; j++)
                 {
                     float pix = cropped.ptr<uchar>(i)[j * 3 + c];
-                    output[c * row * col + i * col + j] = (pix / 255. - mean[c]) / std[c];
-
-                                    
+                    output[c * row * col + i * col + j] = pix / std[c];
                 }
             }
         }
-                
     }
 
     void PreProcess::letterbox(const cv::Mat& image, cv::Mat& outImage,

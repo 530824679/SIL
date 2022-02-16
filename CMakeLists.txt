@@ -13,7 +13,7 @@ include_directories(
         ./include
         ./include/detect
         ./include/recognise
-        ./include/track
+        #./include/track
         ./include/common
         ./include/preprocess
         ./include/postprocess
@@ -26,6 +26,7 @@ link_directories("/home/chenwei/HDD/Project/SIL/lib/cpu")
 add_executable(SIL 
         src/main.cpp
         src/runable.cpp
+        #src/track.cpp
         src/detect/detector.cpp
         src/recognise/recogniser.cpp
         src/postprocess/postprocessor.cpp

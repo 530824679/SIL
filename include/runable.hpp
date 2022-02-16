@@ -24,6 +24,7 @@ as well as in the event of applications for industrial property rights.
 #include <map>
 #include <string>
 #include "types.h"
+//#include "tracker.h"
 #include "cmdline.h"
 #include "detector.h"
 #include "recogniser.h"
@@ -45,7 +46,6 @@ namespace perception
         bool is_gpu;
         std::string classNamesPath;
         std::vector<std::string> classNames;
-        // std::string dataPath;
         std::string odetModelPath;
         std::string kpsModelPath;
         std::string visualType;
@@ -53,10 +53,13 @@ namespace perception
         float iouThreshold;
 
         std::vector<BoxInfo> result;
-        Detector *pdetector = NULL;
+        std::vector<KeypointsInfo> kps;
+
+        Detector *pdetector;
+        Recogniser *precogniser;
+        //Track *ptracker;
         PreProcess preProcess;
         Visualizer visualizer;
-
     };
 };
 

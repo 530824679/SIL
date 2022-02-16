@@ -29,6 +29,7 @@ as well as in the event of applications for industrial property rights.
 #include "types.h"
 #include "preprocessor.h"
 #include "postprocessor.h"
+#include "decode.h"
 
 namespace perception
 {
@@ -53,6 +54,8 @@ namespace perception
 
         std::shared_ptr<PreProcess> preProcessor_;
         std::shared_ptr<PostProcess> postProcessor_;
+        std::shared_ptr<Decode> decode_;
+
     };
 }
 #endif //SIL_DETECTOR_H

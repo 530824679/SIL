@@ -40,7 +40,7 @@ namespace perception
     {
         cv::Rect bbox;
         float score{};
-        int classId{};
+        int classId;
     } BoxInfo;
 
     typedef struct KeypointsInfo
@@ -81,5 +81,38 @@ namespace perception
 
         int year = 0; // the age of tracker
     }TrackerInfo;
+
+
+
+
+
+
+//    struct Bbox
+//    {
+//        float score;
+//        int x1;
+//        int y1;
+//        int w;
+//        int h;
+//    };
+//
+//    struct BoundingBox
+//    {
+//        Rect_<float> rect;
+//        BoundingBox(const Bbox &box)
+//        {
+//            rect = Rect_<float>(box.x1, box.y1, box.w, box.h);
+//        }
+//    };
+//
+//    typedef struct TrackingBox
+//    {
+//        int frame;
+//        int id;
+//        Rect_<float> box;
+//    } TrackingBox;
 }
 #endif //SIL_TYPES_H
+
+
+
